@@ -15,17 +15,12 @@ namespace esp8266_derby_app
     public partial class Main : Form
     {
         public Derby derby { get; set; } = new Derby();
-        Den newDen = new Den();
-        Car newCar = new Car();
-        List<Car> participants = new List<Car>();
-        
+                                
         BindingSource bsDenList = new BindingSource();
         BindingSource bsCarList = new BindingSource();
         BindingSource bsCarDen = new BindingSource();
         BindingSource bsCompletedRaces = new BindingSource();
-        BindingSource bsParticipants = new BindingSource();
-
-        int redoRaceNumber = 0;
+        BindingSource bsParticipants = new BindingSource();        
 
         public Main()
         {
@@ -116,7 +111,7 @@ namespace esp8266_derby_app
             txtTimerIPAddr.Text = derby.timerIP;
             btnNewRace.Enabled = false;
             btnNewCar.Enabled = false;
-            participants.Clear();
+            derby.participants.Clear();
 
             bsDenList.DataSource = derby.dens;
             lstDenList.DisplayMember = "DisplayMember";
@@ -133,7 +128,7 @@ namespace esp8266_derby_app
             lstCarList.ValueMember = "ID";
             lstCarList.DataSource = bsCarList;
 
-            bsParticipants.DataSource = participants;
+            bsParticipants.DataSource = derby.participants;
             lstParticipants.DisplayMember = "DisplayMember";
             lstParticipants.ValueMember = "ID";
             lstParticipants.DataSource = bsParticipants;
@@ -211,47 +206,7 @@ namespace esp8266_derby_app
             for (int i = 0; i < derby.trackLanes; i++)
                 derby.laneSchedule.Add(new List<Guid>());
             LoadDerbyControls();        
-        }        
-
-        private void positionCars(ref List<List<Guid>> laneParticipants, List<Guid> cars, int trackLanes)
-        {
-            List<List<Guid>> tempLaneParticipants = new List<List<Guid>>();
-
-            laneParticipants.Clear();
-            // randomize the list of cars and load them into a new list for the first lane
-            Random rnd = new Random();
-            List<Guid> lane1 = new List<Guid>(cars.OrderBy(g => rnd.Next()));
-            tempLaneParticipants.Add(lane1);
-            laneParticipants.Add(new List<Guid>());
-
-            // create remaining track lanes
-            for(int i=0; i < trackLanes-1; i++) {                
-                // copy the previous lane queue into a new list for the next lane
-                List<Guid> newLane = new List<Guid>((List<Guid>)tempLaneParticipants[i]);
-                // rotate the list once so that each car is never matched with itself
-                newLane.Add(newLane[0]);
-                newLane.RemoveAt(0);
-                tempLaneParticipants.Add(newLane);
-                laneParticipants.Add(new List<Guid>());
-            }
-
-            List<int> randomlist = new List<int>();
-            for (int i=0; i<derby.cars.Count(); i++)
-            {
-                randomlist.Add(i);
-            }
-
-            
-            randomlist = randomlist.OrderBy(g => rnd.Next()).ToList();
-            foreach(int entry in randomlist)
-            {
-                for(int j=0; j<trackLanes; j++)
-                {
-                    laneParticipants[j].Add(tempLaneParticipants[j][entry]);
-                }
-            }
-
-        }
+        }                
 
         private void txtPackName_TextChanged(object sender, EventArgs e)
         {
@@ -274,8 +229,7 @@ namespace esp8266_derby_app
         }
 
         private void btnNewDen_Click(object sender, EventArgs e)
-        {
-            newDen = new Den();
+        {            
             txtDenNickname.Text = "";
             txtDenNickname.Enabled = true;
             cmbDenRank.Enabled = true;
@@ -291,16 +245,8 @@ namespace esp8266_derby_app
 
         private void btnSaveDen_Click(object sender, EventArgs e)
         {
-            newDen.rank = cmbDenRank.Text;
-            newDen.name = txtDenNickname.Text;
-
-            // remove den if it already exists (in case of editing)
-            int idx = derby.dens.FindIndex(a => a.ID == newDen.ID);
-            if (idx != -1)
-                derby.dens.RemoveAt(idx);
-                                         
-            derby.dens.Add(newDen);
-
+            derby.AddDen(txtDenNickname.Text, cmbDenRank.Text);
+                      
             bsDenList.ResetBindings(false);
             bsCarDen.ResetBindings(false);
             txtDenNickname.Text = "";
@@ -313,8 +259,7 @@ namespace esp8266_derby_app
 
         private void btnEditDen_Click(object sender, EventArgs e)
         {
-            int idx = derby.dens.FindIndex(a => a.ID == (Guid)lstDenList.SelectedValue);
-            newDen = derby.dens.ElementAt(idx);
+            Den newDen = derby.GetDen((Guid)lstDenList.SelectedValue);
             txtDenNickname.Text = newDen.name;
             txtDenNickname.Enabled = true;            
             cmbDenRank.SelectedValue = newDen.ID;
@@ -328,11 +273,9 @@ namespace esp8266_derby_app
             if (dr == DialogResult.Yes)
             {
                 // delete cars that belong to the den
-                derby.cars.RemoveAll(g => g.denID == (Guid)lstDenList.SelectedValue);
-                bsCarList.ResetBindings(false);
+                derby.DeleteDen((Guid)lstDenList.SelectedValue);
 
-                int idx = derby.dens.FindIndex(a => a.ID == (Guid)lstDenList.SelectedValue);
-                derby.dens.RemoveAt(idx);
+                bsCarList.ResetBindings(false);
                 bsDenList.ResetBindings(false);
                 bsCarDen.ResetBindings(false);
                
@@ -346,8 +289,7 @@ namespace esp8266_derby_app
         }
 
         private void btnNewCar_Click(object sender, EventArgs e)
-        {
-            newCar = new Car();
+        {            
             txtCarName.Text = "";
             txtCarName.Enabled = true;
             cmbCarDen.SelectedIndex = 0;
@@ -359,19 +301,9 @@ namespace esp8266_derby_app
 
         private void btnSaveCar_Click(object sender, EventArgs e)
         {            
-            newCar.name = txtCarName.Text;
-            newCar.weight = Convert.ToDouble(numCarWeight.Value);
-            newCar.denID = (Guid)cmbCarDen.SelectedValue;
-            newCar.number = Convert.ToInt32(numCarNumber.Value);
-
-            // remove car if it already exists (in case of editing)
-            int idx = derby.cars.FindIndex(a => a.ID == newCar.ID);
-            if (idx != -1)
-                derby.cars.RemoveAt(idx);
+            derby.AddCar(txtCarName.Text, Convert.ToDouble(numCarWeight.Value), (Guid)cmbCarDen.SelectedValue, Convert.ToInt32(numCarNumber.Value));
             
-            derby.cars.Add(newCar);
             bsCarList.ResetBindings(false);
-
             txtCarName.Enabled = false;
             cmbCarDen.Enabled = false;
             numCarWeight.Enabled = false;
@@ -385,26 +317,8 @@ namespace esp8266_derby_app
         private void btnNewRace_Click(object sender, EventArgs e)
         {
             btnNewRace.Enabled = false;
-            // create race schedule on first new race
-            if (derby.races.Count == 0)
-            {
-                // create a list of car IDs
-                List<Guid> cars = new List<Guid>();
-                foreach (Car car in derby.cars)
-                {
-                    cars.Add(car.ID);
-                }
-                positionCars(ref derby.laneSchedule, cars, derby.trackLanes);
-            }
-                                   
-            participants.Clear();
-            for(int i=0; i<derby.trackLanes; i++)
-            {                
-                Guid participantID = derby.laneSchedule[i][0];
-                derby.laneSchedule[i].RemoveAt(0);
-                Car newParticipant = derby.cars.Where(g => g.ID == participantID).First();
-                participants.Add(newParticipant);
-            }
+
+            derby.NewRace();
 
             lblRemainingRaces.Text = "Remaining Races: " + derby.laneSchedule[0].Count();
             bsParticipants.ResetBindings(false);
@@ -437,13 +351,10 @@ namespace esp8266_derby_app
         }
 
         private void btnFinishRace_Click(object sender, EventArgs e)
-        {            
-            /// dialog input if no timer
-            TimerResult timerResult = new TimerResult();
-
-            if (Timer.Results(derby.timerIP, ref timerResult))
+        {                        
+            if (derby.FinishRace())
             {
-                btnFinishRace.Enabled = false;                
+                btnFinishRace.Enabled = false;
                 btnRedoRace.Enabled = true;
                 btnDeleteRace.Enabled = true;
 
@@ -451,45 +362,15 @@ namespace esp8266_derby_app
                 if (derby.laneSchedule[0].Count > 0)
                     btnNewRace.Enabled = true;
 
-                Race newRace = new Race();
-                newRace.dateTime = DateTime.Now;
-
-                // if no 'redo race number' has been assigned, then append to the race, otherwise assign
-                if (redoRaceNumber == 0)
-                    newRace.number = derby.races.Count + 1;
-                else
-                {
-                    newRace.number = redoRaceNumber;
-                    redoRaceNumber = 0;
-                }
-                
-                for (int i=0; i < timerResult.LaneTimes.Count; i++)
-                {
-                    FinishTime newFinishTime = new FinishTime();
-                    newFinishTime.lane = i+1; // compensate zero based list
-                    newFinishTime.carID = participants[i].ID;
-                    newFinishTime.time = timerResult.LaneTimes[i];
-                    newFinishTime.raceID = newRace.ID;
-
-                    derby.finishTimes.Add(newFinishTime);
-                    newRace.finishIDs.Add(newFinishTime.ID);
-
-                    // ugly but effective way of updating car finish IDs
-                    (derby.cars.Where(g => g.ID == participants[i].ID).First()).finishIDs.Add(newFinishTime.ID);
-                }
-
-                lblRaceStatus.Text = "Finished";
-                derby.races.Add(newRace);
-                bsCompletedRaces.ResetBindings(false);
-                participants.Clear();
+                lblRaceStatus.Text = "Finished";                
+                bsCompletedRaces.ResetBindings(false);                
                 bsParticipants.ResetBindings(false);
                 lstCompletedRaces.SetSelected(lstCompletedRaces.Items.Count - 1, true);
             }
             else
             {
                 lblRaceStatus.Text = "Race Status: Timer Results Error";
-
-                // below lines are just for testing without timer
+                
                 btnFinishRace.Enabled = false;                
                 btnRedoRace.Enabled = true;
                 if (derby.laneSchedule[0].Count > 0)
@@ -514,8 +395,8 @@ namespace esp8266_derby_app
                       "Delete?", MessageBoxButtons.YesNo);
             if (dr == DialogResult.Yes)
             {
-                int idx = derby.cars.FindIndex(a => a.ID == (Guid)lstCarList.SelectedValue);
-                derby.cars.RemoveAt(idx);
+                derby.DeleteCar((Guid)lstCarList.SelectedValue);
+
                 bsCarList.ResetBindings(false);
 
                 if (bsCarList.Count == 0)
@@ -529,8 +410,7 @@ namespace esp8266_derby_app
 
         private void btnEditCar_Click(object sender, EventArgs e)
         {
-            int idx = derby.cars.FindIndex(a => a.ID == (Guid)lstCarList.SelectedValue);
-            newCar = derby.cars.ElementAt(idx);
+            Car newCar = derby.GetCar((Guid)lstCarList.SelectedValue);
 
             txtCarName.Text = newCar.name;
             txtCarName.Enabled = true;
@@ -541,7 +421,6 @@ namespace esp8266_derby_app
             numCarNumber.Value = Convert.ToDecimal(newCar.number);
             numCarNumber.Enabled = true;
             btnSaveCar.Enabled = true;            
-
         }
 
         private void txtCarName_TextChanged(object sender, EventArgs e)
@@ -580,22 +459,8 @@ namespace esp8266_derby_app
         }
 
         private void btnRedoRace_Click(object sender, EventArgs e)
-        {
-            Guid raceID = (Guid)lstCompletedRaces.SelectedValue;
-            participants.Clear();
-
-            List<FinishTime> finishTimes = derby.finishTimes.Where(finishTime => finishTime.raceID == raceID).OrderBy(i => i.lane).ToList();
-
-            foreach(FinishTime finishTime in finishTimes)
-            {
-                Car newCar = derby.cars.Where(car => car.ID == finishTime.carID).First();
-                participants.Add(newCar);
-                // ugly but efficient way to remove finishIDs from selected car
-                (derby.cars.Where(car => car.ID == finishTime.carID).First()).finishIDs.RemoveAll(finishID => finishID == finishTime.ID);
-                derby.finishTimes.RemoveAll(i => i.ID == finishTime.ID);
-            }
-            redoRaceNumber = (derby.races.Where(race => race.ID == raceID)).Select(i => i.number).First();
-            derby.races.RemoveAll(race => race.ID == raceID);
+        {            
+            derby.RedoRace((Guid)lstCompletedRaces.SelectedValue);
             
             bsCompletedRaces.ResetBindings(false);
             bsParticipants.ResetBindings(false);
@@ -633,18 +498,8 @@ namespace esp8266_derby_app
                       "Delete?", MessageBoxButtons.YesNo);
             if (dr == DialogResult.Yes)
             {
-                Guid raceID = (Guid)lstCompletedRaces.SelectedValue;
+                derby.DeleteRace((Guid)lstCompletedRaces.SelectedValue);
 
-                List<FinishTime> finishTimes = derby.finishTimes.Where(finishTime => finishTime.raceID == raceID).OrderBy(i => i.lane).ToList();
-
-                foreach (FinishTime finishTime in finishTimes)
-                {                    
-                    // ugly but efficient way to remove finishIDs from selected car
-                    (derby.cars.Where(car => car.ID == finishTime.carID).First()).finishIDs.RemoveAll(finishID => finishID == finishTime.ID);
-                    derby.finishTimes.RemoveAll(i => i.ID == finishTime.ID);
-                }
-
-                derby.races.RemoveAll(race => race.ID == raceID);
                 bsCompletedRaces.ResetBindings(false);
                 if (derby.races.Count == 0)
                     btnDeleteRace.Enabled = false;
@@ -665,10 +520,12 @@ namespace esp8266_derby_app
         {
 
         }
+
         private void btnRefreshSummary_Click(object sender, EventArgs e)
         {
             RefreshSummary();
         }
+
         private void RefreshSummary()
         {
             dgvLeaderBoard.Rows.Clear();
