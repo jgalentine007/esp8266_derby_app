@@ -17,5 +17,14 @@ namespace esp8266_derby_app
         public Guid ID { get; set; } = Guid.NewGuid();
 
         public string DisplayMember { get { return rank + " - " + name; } }
+
+        public override bool Equals(object obj)
+        {
+            Den that = obj as Den;
+            if (this.name == that.name && this.rank == that.rank) 
+                return true;
+            else
+                return false;
+        }
     }
 }

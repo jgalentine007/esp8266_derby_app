@@ -31,7 +31,7 @@ namespace esp8266_derby_app
             newDen.name = name;
 
             // remove den if it already exists (in case of editing)
-            int idx = dens.FindIndex(a => a.ID == newDen.ID);
+            int idx = dens.FindIndex(a => a.Equals(newDen));
             if (idx != -1)
                 dens.RemoveAt(idx);
 
