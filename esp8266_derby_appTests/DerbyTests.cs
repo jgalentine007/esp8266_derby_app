@@ -90,18 +90,27 @@ namespace esp8266_derby_app.Tests
 
         [Test()]
         public void AddCarTest()
-        {            
+        {
             Derby derby = new Derby();
+
+            Den den = new Den();
+            den.name = "terrible tigers";
+            den.rank = "tiger";
+
+            derby.dens.Add(den);
 
             Car car = new Car();
             car.name = "joe";
             car.weight = 1.0;
             car.number = 1;
+            car.denID = den.ID;
 
-            derby.AddCar(car.ID, car.name, car.weight, car.ID, car.number);
+            derby.AddCar(car.ID, car.name, car.weight, den.ID, car.number);
 
             Assert.Contains(car, derby.cars);
+            Assert.Contains(car.ID, derby.dens.Find(a => a.ID == den.ID).carIDs);
         }
+
 
         [Test()]
         public void AddCarAlreadyExistsTest()
@@ -118,6 +127,60 @@ namespace esp8266_derby_app.Tests
 
             Assert.Contains(car, derby.cars);
             Assert.AreEqual(derby.cars.Count, 1);
+        }
+
+        [Test()]
+        public void DeleteCarTest()
+        {
+            Derby derby = new Derby();
+
+            Car car = new Car();
+            car.name = "joe";
+            car.weight = 1.0;
+            car.number = 1;
+
+            derby.cars.Add(car);
+
+            derby.DeleteCar(car.ID);
+
+            Assert.AreEqual(derby.cars.Count, 0);
+        }
+
+        [Test()]
+        public void GetCarTest()
+        {
+            Derby derby = new Derby();
+
+            Car car = new Car();
+            car.name = "joe";
+            car.weight = 1.0;
+            car.number = 1;
+
+            derby.cars.Add(car);
+
+            Car newCar = derby.GetCar(car.ID);
+
+            Assert.AreEqual(car, newCar);
+        }
+
+        [Test()]
+        public void NewRaceTest()
+        {
+            Derby derby = new Derby();
+
+            Guid denID = derby.AddDen("terrible tigers", "tiger");
+            derby.AddCar(Guid.NewGuid(), "joe", 1.0, denID, 1);
+
+            derby.NewRace();
+
+            //Assert.AreEqual(derby.races.Count, 1);
+            Assert.Fail();
+        }
+
+        [Test()]
+        public void PositionCarsTest()
+        {
+            Assert.Fail();
         }
     }
 }

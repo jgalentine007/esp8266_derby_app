@@ -18,6 +18,11 @@ namespace esp8266_derby_app
 
         public string DisplayMember { get { return rank + " - " + name; } }
 
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         public override bool Equals(object obj)
         {
             Den that = obj as Den;

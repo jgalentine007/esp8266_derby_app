@@ -24,7 +24,7 @@ namespace esp8266_derby_app
         public int trackLanes { get; set; } = 4;
         public int redoRaceNumber = 0;
 
-        public void AddDen(string name, string rank)
+        public Guid AddDen(string name, string rank)
         {
             Den newDen = new Den();
             newDen.rank = rank;
@@ -36,6 +36,8 @@ namespace esp8266_derby_app
                 dens.RemoveAt(idx);
 
             dens.Add(newDen);
+
+            return newDen.ID;
         }
 
         public void DeleteDen(Guid denID)
@@ -69,6 +71,17 @@ namespace esp8266_derby_app
                 cars.RemoveAt(idx);
 
             cars.Add(newCar);
+            AddCarToDen(denID, newCar.ID);           
+        }
+
+        private void AddCarToDen(Guid denID, Guid carID)
+        {
+            int idx = dens.FindIndex(a => a.ID == denID);
+            if (idx != -1)
+            {
+                if (!dens[idx].carIDs.Contains(carID))
+                    dens[idx].carIDs.Add(carID);
+            }                
         }
 
         public void DeleteCar(Guid carID)
