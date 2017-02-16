@@ -87,5 +87,37 @@ namespace esp8266_derby_app.Tests
 
             Assert.AreEqual(den, newDen);
         }
+
+        [Test()]
+        public void AddCarTest()
+        {            
+            Derby derby = new Derby();
+
+            Car car = new Car();
+            car.name = "joe";
+            car.weight = 1.0;
+            car.number = 1;
+
+            derby.AddCar(car.ID, car.name, car.weight, car.ID, car.number);
+
+            Assert.Contains(car, derby.cars);
+        }
+
+        [Test()]
+        public void AddCarAlreadyExistsTest()
+        {
+            Derby derby = new Derby();
+
+            Car car = new Car();
+            car.name = "joe";
+            car.weight = 1.0;
+            car.number = 1;
+
+            derby.AddCar(car.ID, car.name, car.weight, car.ID, car.number);
+            derby.AddCar(car.ID, car.name, car.weight, car.ID, car.number);
+
+            Assert.Contains(car, derby.cars);
+            Assert.AreEqual(derby.cars.Count, 1);
+        }
     }
 }

@@ -54,13 +54,14 @@ namespace esp8266_derby_app
             return newDen;
         }
 
-        public void AddCar(string name, double weight, Guid denID, int number)
+        public void AddCar(Guid ID, string name, double weight, Guid denID, int number)
         {
             Car newCar = new Car();
             newCar.name = name;
             newCar.weight = weight;
             newCar.denID = denID;
             newCar.number = number;
+            newCar.ID = ID;
 
             // remove car if it already exists (in case of editing)
             int idx = cars.FindIndex(a => a.ID == newCar.ID);

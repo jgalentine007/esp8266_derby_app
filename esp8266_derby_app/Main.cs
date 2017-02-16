@@ -289,7 +289,8 @@ namespace esp8266_derby_app
         }
 
         private void btnNewCar_Click(object sender, EventArgs e)
-        {            
+        {
+            txtCarID.Text = Guid.NewGuid().ToString();
             txtCarName.Text = "";
             txtCarName.Enabled = true;
             cmbCarDen.SelectedIndex = 0;
@@ -301,7 +302,7 @@ namespace esp8266_derby_app
 
         private void btnSaveCar_Click(object sender, EventArgs e)
         {            
-            derby.AddCar(txtCarName.Text, Convert.ToDouble(numCarWeight.Value), (Guid)cmbCarDen.SelectedValue, Convert.ToInt32(numCarNumber.Value));
+            derby.AddCar(Guid.Parse(txtCarID.Text), txtCarName.Text, Convert.ToDouble(numCarWeight.Value), (Guid)cmbCarDen.SelectedValue, Convert.ToInt32(numCarNumber.Value));
             
             bsCarList.ResetBindings(false);
             txtCarName.Enabled = false;
@@ -412,6 +413,7 @@ namespace esp8266_derby_app
         {
             Car newCar = derby.GetCar((Guid)lstCarList.SelectedValue);
 
+            txtCarID.Text = newCar.ID.ToString();
             txtCarName.Text = newCar.name;
             txtCarName.Enabled = true;
             cmbCarDen.SelectedValue = newCar.denID;
