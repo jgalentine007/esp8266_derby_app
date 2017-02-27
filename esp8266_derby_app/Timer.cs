@@ -8,9 +8,16 @@ using System.Net;
 
 namespace esp8266_derby_app
 {
-    public static class Timer
+    public class Esp8266Timer:ITimer
     {
-        public static bool Test(string timerIPAddr)
+        string timerIPAddr { get; set; }
+
+        public Esp8266Timer(string timerIPAddr)
+        {
+            this.timerIPAddr = timerIPAddr;
+        }
+
+        public bool Test()
         {
             try
             {
@@ -28,7 +35,7 @@ namespace esp8266_derby_app
                 return false;
             }
         }
-        public static bool NewRace(string timerIPAddr)
+        public bool NewRace()
         {
             try
             {
@@ -48,7 +55,7 @@ namespace esp8266_derby_app
             }
         }
 
-        public static bool Results(string timerIPAddr, ref TimerResult timerResult)
+        public bool Results(ref TimerResult timerResult)
         {
             try
             {

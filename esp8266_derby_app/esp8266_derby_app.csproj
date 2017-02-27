@@ -58,6 +58,7 @@
     <Compile Include="Den.cs" />
     <Compile Include="Derby.cs" />
     <Compile Include="FinishTime.cs" />
+    <Compile Include="ITimer.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -23,6 +23,12 @@ namespace esp8266_derby_app
         public int heatsPerCar { get; set; } = 4;
         public int trackLanes { get; set; } = 4;
         public int redoRaceNumber = 0;
+        private ITimer timer;
+
+        public void SetTimer(ITimer timer)
+        {
+            this.timer = timer;
+        }
 
         public Guid AddDen(string name, string rank)
         {
@@ -146,11 +152,21 @@ namespace esp8266_derby_app
             races.RemoveAll(race => race.ID == raceID);
         }
 
+        public bool StartTimer()
+        {
+            return timer.NewRace();
+        }
+
+        public bool TestTimer()
+        {
+            return timer.Test();
+        }
+
         public bool FinishRace()
         {
             TimerResult timerResult = new TimerResult();
 
-            if (Timer.Results(timerIP, ref timerResult))
+            if (timer.Results(ref timerResult))
             {                
                 Race newRace = new Race();
                 newRace.dateTime = DateTime.Now;

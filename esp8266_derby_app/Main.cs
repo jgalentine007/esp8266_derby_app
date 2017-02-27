@@ -106,8 +106,9 @@ namespace esp8266_derby_app
             numHeatsPerCar.Text = " ";  // workaround for value not updating screen control
             numHeatsPerCar.Value = Convert.ToDecimal(derby.heatsPerCar);
             numTrackLanes.Text = " ";
-            numTrackLanes.Value = Convert.ToDecimal(derby.trackLanes);
+            numTrackLanes.Value = Convert.ToDecimal(derby.trackLanes);            
             chkUseTimer.Checked = derby.useTimer;
+
             txtTimerIPAddr.Text = derby.timerIP;
             btnNewRace.Enabled = false;
             btnNewCar.Enabled = false;
@@ -183,6 +184,11 @@ namespace esp8266_derby_app
             dgvLeaderBoard.Columns[2].Name = "AvgT";
 
             RefreshSummary();
+
+            if (chkUseTimer.Checked)
+            {
+                CreateTimer(txtTimerIPAddr.Text);
+            }
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -225,7 +231,11 @@ namespace esp8266_derby_app
 
         private void chkUseTimer_CheckedChanged(object sender, EventArgs e)
         {
-            derby.useTimer = chkUseTimer.Checked;            
+            derby.useTimer = chkUseTimer.Checked;
+            if (chkUseTimer.Checked)
+            {
+                CreateTimer(txtTimerIPAddr.Text);
+            }
         }
 
         private void btnNewDen_Click(object sender, EventArgs e)
@@ -335,7 +345,7 @@ namespace esp8266_derby_app
 
         private void btnStartTimer_Click(object sender, EventArgs e)
         {            
-            if (Timer.NewRace(derby.timerIP))
+            if (derby.StartTimer())
             {
                 btnStartTimer.Enabled = false;
                 btnFinishRace.Enabled = true;
@@ -381,7 +391,7 @@ namespace esp8266_derby_app
 
         private void btnTestTimer_Click(object sender, EventArgs e)
         {
-            if (Timer.Test(derby.timerIP))
+            if (derby.TestTimer())
             {
                 lblTestTimer.Text = "Success!";
             } else
@@ -526,6 +536,12 @@ namespace esp8266_derby_app
         private void btnRefreshSummary_Click(object sender, EventArgs e)
         {
             RefreshSummary();
+        }
+
+        private void CreateTimer(string ipAddr)
+        {
+            Esp8266Timer timer = new Esp8266Timer(ipAddr);
+            derby.SetTimer(timer);
         }
 
         private void RefreshSummary()

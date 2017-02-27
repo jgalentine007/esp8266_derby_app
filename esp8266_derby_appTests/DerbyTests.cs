@@ -170,15 +170,46 @@ namespace esp8266_derby_app.Tests
 
             Guid denID = derby.AddDen("terrible tigers", "tiger");
             derby.AddCar(Guid.NewGuid(), "joe", 1.0, denID, 1);
+            derby.AddCar(Guid.NewGuid(), "bob", 1.0, denID, 2);
+            derby.AddCar(Guid.NewGuid(), "tim", 1.0, denID, 3);
+            derby.AddCar(Guid.NewGuid(), "mac", 1.0, denID, 3);
 
             derby.NewRace();
 
-            //Assert.AreEqual(derby.races.Count, 1);
-            Assert.Fail();
+            Assert.AreEqual(derby.participants.Count, derby.trackLanes);
         }
 
         [Test()]
         public void PositionCarsTest()
+        {
+            Derby derby = new Derby();
+
+            Guid denID = derby.AddDen("terrible tigers", "tiger");
+            derby.AddCar(Guid.NewGuid(), "joe", 1.0, denID, 1);
+            derby.AddCar(Guid.NewGuid(), "bob", 1.0, denID, 2);
+            derby.AddCar(Guid.NewGuid(), "tim", 1.0, denID, 3);
+            derby.AddCar(Guid.NewGuid(), "mac", 1.0, denID, 3);
+
+            derby.PositionCars();
+
+            foreach (Car car in derby.cars)
+            {
+                foreach (List<Guid> mylst in derby.laneSchedule)
+                {
+                    Assert.AreEqual(mylst.FindAll(a => a == car.ID).Count(), 1);
+                }
+            }
+
+        }
+
+        [Test()]
+        public void DeleteRaceTest()
+        {
+            Assert.Fail();
+        }
+
+        [Test()]
+        public void FinishRaceTest()
         {
             Assert.Fail();
         }
