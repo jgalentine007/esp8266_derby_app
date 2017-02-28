@@ -9,6 +9,7 @@ namespace esp8266_derby_app
     public class MockTimer : ITimer
     {
         private int tracklanes;
+        private Random random = new Random();
 
         public MockTimer(int tracklanes)
         {
@@ -26,7 +27,7 @@ namespace esp8266_derby_app
 
             for (int i = 0; i < tracklanes; i++)
             {
-                timerResult.LaneTimes.Add(1.00 + i);
+                timerResult.LaneTimes.Add(GetRandomNumber(1.0,10.0));
             }
 
             return true;
@@ -35,6 +36,11 @@ namespace esp8266_derby_app
         public bool Test()
         {
             return true;
+        }
+
+        private double GetRandomNumber(double minimum, double maximum)
+        {            
+            return random.NextDouble() * (maximum - minimum) + minimum;
         }
     }
 }

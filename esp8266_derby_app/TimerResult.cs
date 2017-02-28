@@ -10,9 +10,10 @@ namespace esp8266_derby_app
     public class TimerResult
     {
         [JsonProperty("LaneTimes")]
-        public List<double> LaneTimes { get; set; }
+        public List<double> LaneTimes { get; set; } = new List<double>();
 
         [JsonProperty("RaceStarted")]
         public bool RaceStarted { get; set; }
+      
     }
 }
