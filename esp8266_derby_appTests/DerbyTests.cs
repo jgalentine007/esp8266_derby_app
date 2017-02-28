@@ -205,13 +205,39 @@ namespace esp8266_derby_app.Tests
         [Test()]
         public void DeleteRaceTest()
         {
-            Assert.Fail();
+            Derby derby = new Derby();
+
+            Guid denID = derby.AddDen("terrible tigers", "tiger");
+            derby.AddCar(Guid.NewGuid(), "joe", 1.0, denID, 1);
+            derby.AddCar(Guid.NewGuid(), "bob", 1.0, denID, 2);
+            derby.AddCar(Guid.NewGuid(), "tim", 1.0, denID, 3);
+            derby.AddCar(Guid.NewGuid(), "mac", 1.0, denID, 3);
+
+            MockTimer timer = new MockTimer(derby.trackLanes);
+            derby.SetTimer(timer);
+            derby.NewRace();
+            derby.FinishRace();
         }
 
         [Test()]
         public void FinishRaceTest()
         {
-            Assert.Fail();
+            Derby derby = new Derby();
+
+            Guid denID = derby.AddDen("terrible tigers", "tiger");
+            derby.AddCar(Guid.NewGuid(), "joe", 1.0, denID, 1);
+            derby.AddCar(Guid.NewGuid(), "bob", 1.0, denID, 2);
+            derby.AddCar(Guid.NewGuid(), "tim", 1.0, denID, 3);
+            derby.AddCar(Guid.NewGuid(), "mac", 1.0, denID, 3);
+
+            MockTimer timer = new MockTimer(derby.trackLanes);
+            derby.SetTimer(timer);
+            derby.NewRace();
+            derby.FinishRace();
+            derby.DeleteRace(derby.races[0].ID);
+
+            Assert.AreEqual(derby.races.Count, 0);
+            Assert.AreEqual(derby.finishTimes.Count, 0);
         }
     }
 }
