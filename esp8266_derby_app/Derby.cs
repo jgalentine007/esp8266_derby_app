@@ -166,7 +166,7 @@ namespace esp8266_derby_app
         {
             TimerResult timerResult = new TimerResult();
 
-            if (timer.Results(ref timerResult))
+            if (timer.Results(out timerResult))
             {                
                 Race newRace = new Race();
                 newRace.dateTime = DateTime.Now;

@@ -185,10 +185,7 @@ namespace esp8266_derby_app
 
             RefreshSummary();
 
-            if (chkUseTimer.Checked)
-            {
-                CreateTimer(txtTimerIPAddr.Text);
-            }
+            CreateTimer();
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -232,10 +229,7 @@ namespace esp8266_derby_app
         private void chkUseTimer_CheckedChanged(object sender, EventArgs e)
         {
             derby.useTimer = chkUseTimer.Checked;
-            if (chkUseTimer.Checked)
-            {
-                CreateTimer(txtTimerIPAddr.Text);
-            }
+            CreateTimer();
         }
 
         private void btnNewDen_Click(object sender, EventArgs e)
@@ -538,10 +532,19 @@ namespace esp8266_derby_app
             RefreshSummary();
         }
 
-        private void CreateTimer(string ipAddr)
+        private void CreateTimer()
         {
-            Esp8266Timer timer = new Esp8266Timer(ipAddr);
-            derby.SetTimer(timer);
+            if (chkUseTimer.Checked)
+            {
+                Esp8266Timer timer = new Esp8266Timer(derby.timerIP);
+                derby.SetTimer(timer);
+            }
+            else
+            {
+                MockTimer timer = new MockTimer(derby.trackLanes);
+                derby.SetTimer(timer);
+            }
+            
         }
 
         private void RefreshSummary()

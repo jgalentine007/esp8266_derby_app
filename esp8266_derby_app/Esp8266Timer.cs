@@ -55,8 +55,10 @@ namespace esp8266_derby_app
             }
         }
 
-        public bool Results(ref TimerResult timerResult)
+        public bool Results(out TimerResult timerResult)
         {
+            timerResult = new TimerResult();
+
             try
             {
                 string result = "";
