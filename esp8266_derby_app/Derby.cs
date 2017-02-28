@@ -124,7 +124,8 @@ namespace esp8266_derby_app
         {
             List<FinishTime> times = finishTimes.Where(finishTime => finishTime.raceID == raceID).OrderBy(i => i.lane).ToList();
 
-            foreach (FinishTime finishTime in finishTimes)
+            // create a list copy to work from
+            foreach (FinishTime finishTime in times)
             {
                 // ugly but efficient way to remove finishIDs from selected car
                 (cars.Where(car => car.ID == finishTime.carID).First()).finishIDs.RemoveAll(finishID => finishID == finishTime.ID);
