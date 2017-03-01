@@ -10,32 +10,45 @@ namespace esp8266_derby_app
     {
         private int tracklanes;
         private Random random = new Random();
+        bool simulateFailure;
 
-        public MockTimer(int tracklanes)
+        public MockTimer(int tracklanes, bool simulateFailure = false)
         {
             this.tracklanes = tracklanes;
+            this.simulateFailure = simulateFailure;
         }
 
         public bool NewRace()
         {
-            return true;
+            if (simulateFailure)
+                return false;
+            else
+                return true;
         }
 
         public bool Results(out TimerResult timerResult)
         {
             timerResult = new TimerResult();
 
-            for (int i = 0; i < tracklanes; i++)
+            if (simulateFailure)
+                return false;
+            else
             {
-                timerResult.LaneTimes.Add(GetRandomNumber(1.0,10.0));
-            }
+                for (int i = 0; i < tracklanes; i++)
+                {
+                    timerResult.LaneTimes.Add(GetRandomNumber(1.0, 10.0));
+                }
 
-            return true;
+                return true;
+            }
         }
 
         public bool Test()
         {
-            return true;
+            if (simulateFailure)
+                return false;
+            else
+                return true;
         }
 
         private double GetRandomNumber(double minimum, double maximum)

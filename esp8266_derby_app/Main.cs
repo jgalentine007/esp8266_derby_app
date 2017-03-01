@@ -158,8 +158,11 @@ namespace esp8266_derby_app
             {
                 if (derby.races.Count == 0 && derby.laneSchedule[0].Count == 0)                
                     btnNewRace.Enabled = true;
-                if (derby.laneSchedule.Count > 0)
-                    btnNewRace.Enabled = true;
+                foreach (List<Guid> lane in derby.laneSchedule)
+                {
+                    if (lane.Count > 0)
+                        btnNewRace.Enabled = true;
+                }
 
                 btnEditCar.Enabled = true;
                 btnDeleteCar.Enabled = true;                

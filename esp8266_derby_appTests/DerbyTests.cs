@@ -261,5 +261,44 @@ namespace esp8266_derby_app.Tests
             Assert.AreEqual(derby.races.Count, 1);
             Assert.AreEqual(derby.finishTimes.Count, 4);
         }
+
+        [Test()]
+        public void FinishRaceTestFailure()
+        {
+            Derby derby = new Derby();
+
+            Guid denID = derby.AddDen("terrible tigers", "tiger");
+            derby.AddCar(Guid.NewGuid(), "joe", 1.0, denID, 1);
+            derby.AddCar(Guid.NewGuid(), "bob", 1.0, denID, 2);
+            derby.AddCar(Guid.NewGuid(), "tim", 1.0, denID, 3);
+            derby.AddCar(Guid.NewGuid(), "mac", 1.0, denID, 3);
+
+            MockTimer timer = new MockTimer(derby.trackLanes, true);
+            derby.SetTimer(timer);
+            derby.NewRace();
+            Assert.AreEqual(derby.FinishRace(), false);
+        }
+
+        [Test()]
+        public void StartTimerTest()
+        {
+            Derby derby = new Derby();            
+
+            MockTimer timer = new MockTimer(derby.trackLanes);
+            derby.SetTimer(timer);
+
+            Assert.AreEqual(derby.StartTimer(), true);
+        }
+
+        [Test()]
+        public void TestTimerTest()
+        {
+            Derby derby = new Derby();
+
+            MockTimer timer = new MockTimer(derby.trackLanes);
+            derby.SetTimer(timer);
+
+            Assert.AreEqual(derby.TestTimer(), true);
+        }
     }
 }

@@ -22,7 +22,7 @@ namespace esp8266_derby_app
         public bool useTimer { get; set; } = false;
         public int heatsPerCar { get; set; } = 4;
         public int trackLanes { get; set; } = 4;
-        public int redoRaceNumber = 0;
+        public int redoRaceNumber { get; set; } = 0;
         private ITimer timer;
 
         public void SetTimer(ITimer timer)
