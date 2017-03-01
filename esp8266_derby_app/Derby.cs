@@ -22,20 +22,28 @@ namespace esp8266_derby_app
         public bool useTimer { get; set; } = false;
         public int heatsPerCar { get; set; } = 4;
         public int trackLanes { get; set; } = 4;
-        public int redoRaceNumber = 0;
+        public int redoRaceNumber { get; set; } = 0;
+        private ITimer timer;
 
-        public void AddDen(string name, string rank)
+        public void SetTimer(ITimer timer)
+        {
+            this.timer = timer;
+        }
+
+        public Guid AddDen(string name, string rank)
         {
             Den newDen = new Den();
             newDen.rank = rank;
             newDen.name = name;
 
             // remove den if it already exists (in case of editing)
-            int idx = dens.FindIndex(a => a.ID == newDen.ID);
+            int idx = dens.FindIndex(a => a.Equals(newDen));
             if (idx != -1)
                 dens.RemoveAt(idx);
 
             dens.Add(newDen);
+
+            return newDen.ID;
         }
 
         public void DeleteDen(Guid denID)
@@ -54,13 +62,14 @@ namespace esp8266_derby_app
             return newDen;
         }
 
-        public void AddCar(string name, double weight, Guid denID, int number)
+        public void AddCar(Guid ID, string name, double weight, Guid denID, int number)
         {
             Car newCar = new Car();
             newCar.name = name;
             newCar.weight = weight;
             newCar.denID = denID;
             newCar.number = number;
+            newCar.ID = ID;
 
             // remove car if it already exists (in case of editing)
             int idx = cars.FindIndex(a => a.ID == newCar.ID);
@@ -68,6 +77,17 @@ namespace esp8266_derby_app
                 cars.RemoveAt(idx);
 
             cars.Add(newCar);
+            AddCarToDen(denID, newCar.ID);           
+        }
+
+        private void AddCarToDen(Guid denID, Guid carID)
+        {
+            int idx = dens.FindIndex(a => a.ID == denID);
+            if (idx != -1)
+            {
+                if (!dens[idx].carIDs.Contains(carID))
+                    dens[idx].carIDs.Add(carID);
+            }                
         }
 
         public void DeleteCar(Guid carID)
@@ -104,7 +124,8 @@ namespace esp8266_derby_app
         {
             List<FinishTime> times = finishTimes.Where(finishTime => finishTime.raceID == raceID).OrderBy(i => i.lane).ToList();
 
-            foreach (FinishTime finishTime in finishTimes)
+            // create a list copy to work from
+            foreach (FinishTime finishTime in times)
             {
                 // ugly but efficient way to remove finishIDs from selected car
                 (cars.Where(car => car.ID == finishTime.carID).First()).finishIDs.RemoveAll(finishID => finishID == finishTime.ID);
@@ -132,11 +153,21 @@ namespace esp8266_derby_app
             races.RemoveAll(race => race.ID == raceID);
         }
 
+        public bool StartTimer()
+        {
+            return timer.NewRace();
+        }
+
+        public bool TestTimer()
+        {
+            return timer.Test();
+        }
+
         public bool FinishRace()
         {
             TimerResult timerResult = new TimerResult();
 
-            if (Timer.Results(timerIP, ref timerResult))
+            if (timer.Results(out timerResult))
             {                
                 Race newRace = new Race();
                 newRace.dateTime = DateTime.Now;

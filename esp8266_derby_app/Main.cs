@@ -106,8 +106,9 @@ namespace esp8266_derby_app
             numHeatsPerCar.Text = " ";  // workaround for value not updating screen control
             numHeatsPerCar.Value = Convert.ToDecimal(derby.heatsPerCar);
             numTrackLanes.Text = " ";
-            numTrackLanes.Value = Convert.ToDecimal(derby.trackLanes);
+            numTrackLanes.Value = Convert.ToDecimal(derby.trackLanes);            
             chkUseTimer.Checked = derby.useTimer;
+
             txtTimerIPAddr.Text = derby.timerIP;
             btnNewRace.Enabled = false;
             btnNewCar.Enabled = false;
@@ -157,8 +158,11 @@ namespace esp8266_derby_app
             {
                 if (derby.races.Count == 0 && derby.laneSchedule[0].Count == 0)                
                     btnNewRace.Enabled = true;
-                if (derby.laneSchedule.Count > 0)
-                    btnNewRace.Enabled = true;
+                foreach (List<Guid> lane in derby.laneSchedule)
+                {
+                    if (lane.Count > 0)
+                        btnNewRace.Enabled = true;
+                }
 
                 btnEditCar.Enabled = true;
                 btnDeleteCar.Enabled = true;                
@@ -183,6 +187,8 @@ namespace esp8266_derby_app
             dgvLeaderBoard.Columns[2].Name = "AvgT";
 
             RefreshSummary();
+
+            CreateTimer();
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -225,7 +231,8 @@ namespace esp8266_derby_app
 
         private void chkUseTimer_CheckedChanged(object sender, EventArgs e)
         {
-            derby.useTimer = chkUseTimer.Checked;            
+            derby.useTimer = chkUseTimer.Checked;
+            CreateTimer();
         }
 
         private void btnNewDen_Click(object sender, EventArgs e)
@@ -289,7 +296,8 @@ namespace esp8266_derby_app
         }
 
         private void btnNewCar_Click(object sender, EventArgs e)
-        {            
+        {
+            txtCarID.Text = Guid.NewGuid().ToString();
             txtCarName.Text = "";
             txtCarName.Enabled = true;
             cmbCarDen.SelectedIndex = 0;
@@ -301,7 +309,7 @@ namespace esp8266_derby_app
 
         private void btnSaveCar_Click(object sender, EventArgs e)
         {            
-            derby.AddCar(txtCarName.Text, Convert.ToDouble(numCarWeight.Value), (Guid)cmbCarDen.SelectedValue, Convert.ToInt32(numCarNumber.Value));
+            derby.AddCar(Guid.Parse(txtCarID.Text), txtCarName.Text, Convert.ToDouble(numCarWeight.Value), (Guid)cmbCarDen.SelectedValue, Convert.ToInt32(numCarNumber.Value));
             
             bsCarList.ResetBindings(false);
             txtCarName.Enabled = false;
@@ -334,7 +342,7 @@ namespace esp8266_derby_app
 
         private void btnStartTimer_Click(object sender, EventArgs e)
         {            
-            if (Timer.NewRace(derby.timerIP))
+            if (derby.StartTimer())
             {
                 btnStartTimer.Enabled = false;
                 btnFinishRace.Enabled = true;
@@ -380,7 +388,7 @@ namespace esp8266_derby_app
 
         private void btnTestTimer_Click(object sender, EventArgs e)
         {
-            if (Timer.Test(derby.timerIP))
+            if (derby.TestTimer())
             {
                 lblTestTimer.Text = "Success!";
             } else
@@ -412,6 +420,7 @@ namespace esp8266_derby_app
         {
             Car newCar = derby.GetCar((Guid)lstCarList.SelectedValue);
 
+            txtCarID.Text = newCar.ID.ToString();
             txtCarName.Text = newCar.name;
             txtCarName.Enabled = true;
             cmbCarDen.SelectedValue = newCar.denID;
@@ -524,6 +533,21 @@ namespace esp8266_derby_app
         private void btnRefreshSummary_Click(object sender, EventArgs e)
         {
             RefreshSummary();
+        }
+
+        private void CreateTimer()
+        {
+            if (chkUseTimer.Checked)
+            {
+                Esp8266Timer timer = new Esp8266Timer(derby.timerIP);
+                derby.SetTimer(timer);
+            }
+            else
+            {
+                MockTimer timer = new MockTimer(derby.trackLanes);
+                derby.SetTimer(timer);
+            }
+            
         }
 
         private void RefreshSummary()

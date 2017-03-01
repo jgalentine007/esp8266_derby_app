@@ -14,6 +14,20 @@ namespace esp8266_derby_app
         public Guid ID { get; set; } = Guid.NewGuid();
         public Guid denID { get; set; }
         public List<Guid>  finishIDs { get; set; } = new List<Guid>();
-        public string DisplayMember { get { return name + " #" + number; } }       
+        public string DisplayMember { get { return name + " #" + number; } }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            Car that = obj as Car;
+            if (this.number == that.number)
+                return true;
+            else
+                return false;
+        }
     }
 }
