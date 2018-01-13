@@ -37,9 +37,7 @@ namespace esp8266_derby_app
             this.numTrackLanes = new System.Windows.Forms.NumericUpDown();
             this.numHeatsPerCar = new System.Windows.Forms.NumericUpDown();
             this.btnTestTimer = new System.Windows.Forms.Button();
-            this.chkUseTimer = new System.Windows.Forms.CheckBox();
             this.txtTimerIPAddr = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
@@ -61,6 +59,7 @@ namespace esp8266_derby_app
             this.txtDenNickname = new System.Windows.Forms.TextBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.txtCarID = new System.Windows.Forms.TextBox();
             this.numCarNumber = new System.Windows.Forms.NumericUpDown();
             this.numCarWeight = new System.Windows.Forms.NumericUpDown();
             this.label12 = new System.Windows.Forms.Label();
@@ -83,7 +82,7 @@ namespace esp8266_derby_app
             this.lstParticipants = new System.Windows.Forms.ListBox();
             this.btnNewRace = new System.Windows.Forms.Button();
             this.btnStartTimer = new System.Windows.Forms.Button();
-            this.btnFinishRace = new System.Windows.Forms.Button();
+            this.btnGetResults = new System.Windows.Forms.Button();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.btnDeleteRace = new System.Windows.Forms.Button();
             this.lblCompletedRaces = new System.Windows.Forms.Label();
@@ -108,7 +107,7 @@ namespace esp8266_derby_app
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.txtCarID = new System.Windows.Forms.TextBox();
+            this.btnReadyRace = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numTrackLanes)).BeginInit();
@@ -132,6 +131,9 @@ namespace esp8266_derby_app
             // 
             // tabControl1
             // 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
@@ -149,9 +151,7 @@ namespace esp8266_derby_app
             this.tabPage1.Controls.Add(this.numTrackLanes);
             this.tabPage1.Controls.Add(this.numHeatsPerCar);
             this.tabPage1.Controls.Add(this.btnTestTimer);
-            this.tabPage1.Controls.Add(this.chkUseTimer);
             this.tabPage1.Controls.Add(this.txtTimerIPAddr);
-            this.tabPage1.Controls.Add(this.label8);
             this.tabPage1.Controls.Add(this.label11);
             this.tabPage1.Controls.Add(this.label7);
             this.tabPage1.Controls.Add(this.label10);
@@ -223,18 +223,6 @@ namespace esp8266_derby_app
             this.btnTestTimer.UseVisualStyleBackColor = true;
             this.btnTestTimer.Click += new System.EventHandler(this.btnTestTimer_Click);
             // 
-            // chkUseTimer
-            // 
-            this.chkUseTimer.AutoSize = true;
-            this.chkUseTimer.Checked = true;
-            this.chkUseTimer.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkUseTimer.Location = new System.Drawing.Point(93, 136);
-            this.chkUseTimer.Name = "chkUseTimer";
-            this.chkUseTimer.Size = new System.Drawing.Size(15, 14);
-            this.chkUseTimer.TabIndex = 5;
-            this.chkUseTimer.UseVisualStyleBackColor = true;
-            this.chkUseTimer.CheckedChanged += new System.EventHandler(this.chkUseTimer_CheckedChanged);
-            // 
             // txtTimerIPAddr
             // 
             this.txtTimerIPAddr.Location = new System.Drawing.Point(93, 160);
@@ -242,15 +230,6 @@ namespace esp8266_derby_app
             this.txtTimerIPAddr.Size = new System.Drawing.Size(168, 20);
             this.txtTimerIPAddr.TabIndex = 3;
             this.txtTimerIPAddr.TextChanged += new System.EventHandler(this.txtTimerIPAddr_TextChanged);
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(13, 137);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(58, 13);
-            this.label8.TabIndex = 2;
-            this.label8.Text = "Use Timer:";
             // 
             // label11
             // 
@@ -480,6 +459,16 @@ namespace esp8266_derby_app
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Edit Car";
             // 
+            // txtCarID
+            // 
+            this.txtCarID.Enabled = false;
+            this.txtCarID.Location = new System.Drawing.Point(7, 237);
+            this.txtCarID.Name = "txtCarID";
+            this.txtCarID.ReadOnly = true;
+            this.txtCarID.Size = new System.Drawing.Size(100, 20);
+            this.txtCarID.TabIndex = 11;
+            this.txtCarID.Visible = false;
+            // 
             // numCarNumber
             // 
             this.numCarNumber.Enabled = false;
@@ -647,13 +636,14 @@ namespace esp8266_derby_app
             // 
             // groupBox6
             // 
+            this.groupBox6.Controls.Add(this.btnReadyRace);
             this.groupBox6.Controls.Add(this.lblRaceStatus);
             this.groupBox6.Controls.Add(this.lblRemainingRaces);
             this.groupBox6.Controls.Add(this.label9);
             this.groupBox6.Controls.Add(this.lstParticipants);
             this.groupBox6.Controls.Add(this.btnNewRace);
             this.groupBox6.Controls.Add(this.btnStartTimer);
-            this.groupBox6.Controls.Add(this.btnFinishRace);
+            this.groupBox6.Controls.Add(this.btnGetResults);
             this.groupBox6.Location = new System.Drawing.Point(6, 6);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(190, 251);
@@ -710,24 +700,25 @@ namespace esp8266_derby_app
             // btnStartTimer
             // 
             this.btnStartTimer.Enabled = false;
-            this.btnStartTimer.Location = new System.Drawing.Point(6, 172);
+            this.btnStartTimer.Location = new System.Drawing.Point(109, 202);
             this.btnStartTimer.Name = "btnStartTimer";
             this.btnStartTimer.Size = new System.Drawing.Size(75, 23);
             this.btnStartTimer.TabIndex = 2;
             this.btnStartTimer.Text = "Start Timer";
             this.btnStartTimer.UseVisualStyleBackColor = true;
+            this.btnStartTimer.Visible = false;
             this.btnStartTimer.Click += new System.EventHandler(this.btnStartTimer_Click);
             // 
-            // btnFinishRace
+            // btnGetResults
             // 
-            this.btnFinishRace.Enabled = false;
-            this.btnFinishRace.Location = new System.Drawing.Point(109, 172);
-            this.btnFinishRace.Name = "btnFinishRace";
-            this.btnFinishRace.Size = new System.Drawing.Size(75, 23);
-            this.btnFinishRace.TabIndex = 2;
-            this.btnFinishRace.Text = "Finish Race";
-            this.btnFinishRace.UseVisualStyleBackColor = true;
-            this.btnFinishRace.Click += new System.EventHandler(this.btnFinishRace_Click);
+            this.btnGetResults.Enabled = false;
+            this.btnGetResults.Location = new System.Drawing.Point(109, 172);
+            this.btnGetResults.Name = "btnGetResults";
+            this.btnGetResults.Size = new System.Drawing.Size(75, 23);
+            this.btnGetResults.TabIndex = 2;
+            this.btnGetResults.Text = "Get Results";
+            this.btnGetResults.UseVisualStyleBackColor = true;
+            this.btnGetResults.Click += new System.EventHandler(this.btnFinishRace_Click);
             // 
             // groupBox5
             // 
@@ -751,6 +742,7 @@ namespace esp8266_derby_app
             this.btnDeleteRace.TabIndex = 7;
             this.btnDeleteRace.Text = "Delete Race";
             this.btnDeleteRace.UseVisualStyleBackColor = true;
+            this.btnDeleteRace.Visible = false;
             this.btnDeleteRace.Click += new System.EventHandler(this.btnDeleteRace_Click);
             // 
             // lblCompletedRaces
@@ -833,6 +825,7 @@ namespace esp8266_derby_app
             // 
             // btnRefreshSummary
             // 
+            this.btnRefreshSummary.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnRefreshSummary.Location = new System.Drawing.Point(284, 355);
             this.btnRefreshSummary.Name = "btnRefreshSummary";
             this.btnRefreshSummary.Size = new System.Drawing.Size(75, 23);
@@ -843,6 +836,7 @@ namespace esp8266_derby_app
             // 
             // btnSaveSummary
             // 
+            this.btnSaveSummary.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSaveSummary.Location = new System.Drawing.Point(365, 355);
             this.btnSaveSummary.Name = "btnSaveSummary";
             this.btnSaveSummary.Size = new System.Drawing.Size(75, 23);
@@ -853,6 +847,9 @@ namespace esp8266_derby_app
             // 
             // txtRaceSummary
             // 
+            this.txtRaceSummary.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtRaceSummary.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtRaceSummary.Location = new System.Drawing.Point(7, 211);
             this.txtRaceSummary.Multiline = true;
@@ -863,6 +860,8 @@ namespace esp8266_derby_app
             // 
             // dgvLeaderBoard
             // 
+            this.dgvLeaderBoard.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvLeaderBoard.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvLeaderBoard.Location = new System.Drawing.Point(6, 24);
             this.dgvLeaderBoard.Name = "dgvLeaderBoard";
@@ -963,15 +962,16 @@ namespace esp8266_derby_app
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.aboutToolStripMenuItem.Text = "&About...";
             // 
-            // txtCarID
+            // btnReadyRace
             // 
-            this.txtCarID.Enabled = false;
-            this.txtCarID.Location = new System.Drawing.Point(7, 237);
-            this.txtCarID.Name = "txtCarID";
-            this.txtCarID.ReadOnly = true;
-            this.txtCarID.Size = new System.Drawing.Size(100, 20);
-            this.txtCarID.TabIndex = 11;
-            this.txtCarID.Visible = false;
+            this.btnReadyRace.Enabled = false;
+            this.btnReadyRace.Location = new System.Drawing.Point(6, 172);
+            this.btnReadyRace.Name = "btnReadyRace";
+            this.btnReadyRace.Size = new System.Drawing.Size(75, 23);
+            this.btnReadyRace.TabIndex = 8;
+            this.btnReadyRace.Text = "Ready Race";
+            this.btnReadyRace.UseVisualStyleBackColor = true;
+            this.btnReadyRace.Click += new System.EventHandler(this.btnReadyRace_Click);
             // 
             // Main
             // 
@@ -1062,16 +1062,14 @@ namespace esp8266_derby_app
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.CheckBox chkUseTimer;
         private System.Windows.Forms.TextBox txtTimerIPAddr;
-        private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.ListBox lstParticipants;
         private System.Windows.Forms.Button btnNewRace;
         private System.Windows.Forms.Button btnStartTimer;
-        private System.Windows.Forms.Button btnFinishRace;
+        private System.Windows.Forms.Button btnGetResults;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.DataGridView dgvRace;
         private System.Windows.Forms.ListBox lstCompletedRaces;
@@ -1096,6 +1094,7 @@ namespace esp8266_derby_app
         private System.Windows.Forms.TextBox txtRaceSummary;
         private System.Windows.Forms.DataGridView dgvLeaderBoard;
         private System.Windows.Forms.TextBox txtCarID;
+        private System.Windows.Forms.Button btnReadyRace;
     }
 }
 

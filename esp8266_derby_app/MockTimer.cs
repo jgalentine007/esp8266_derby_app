@@ -26,6 +26,22 @@ namespace esp8266_derby_app
                 return true;
         }
 
+        public bool EndRace()
+        {
+            if (simulateFailure)
+                return false;
+            else
+                return true;
+        }
+
+        public bool ReadyRace()
+        {
+            if (simulateFailure)
+                return false;
+            else
+                return true;
+        }
+
         public bool Results(out TimerResult timerResult)
         {
             timerResult = new TimerResult();

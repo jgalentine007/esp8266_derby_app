@@ -10,6 +10,8 @@ namespace esp8266_derby_app
     {
         bool Test();
         bool NewRace();
+        bool EndRace();
+        bool ReadyRace();
         bool Results(out TimerResult timerResult);
     }
 }

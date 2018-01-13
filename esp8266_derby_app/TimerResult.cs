@@ -14,6 +14,9 @@ namespace esp8266_derby_app
 
         [JsonProperty("RaceStarted")]
         public bool RaceStarted { get; set; }
+
+        [JsonProperty("RaceReady")]
+        public bool RaceReady { get; set; }
       
     }
 }

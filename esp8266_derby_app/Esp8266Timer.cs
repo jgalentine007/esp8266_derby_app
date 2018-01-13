@@ -35,6 +35,27 @@ namespace esp8266_derby_app
                 return false;
             }
         }
+
+        public bool ReadyRace()
+        {
+            try
+            {
+                string result = "";
+                using (WebClient wc = new WebClient())
+                {
+                    result = wc.DownloadString("http://" + timerIPAddr + "/api/ReadyRace");
+                }
+                if (result == "")
+                    return true;
+                else
+                    return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public bool NewRace()
         {
             try
@@ -43,6 +64,26 @@ namespace esp8266_derby_app
                 using (WebClient wc = new WebClient())
                 {
                     result = wc.DownloadString("http://" + timerIPAddr + "/api/NewRace");
+                }
+                if (result == "")
+                    return true;
+                else
+                    return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool EndRace()
+        {
+            try
+            {
+                string result = "";
+                using (WebClient wc = new WebClient())
+                {
+                    result = wc.DownloadString("http://" + timerIPAddr + "/api/EndRace");
                 }
                 if (result == "")
                     return true;

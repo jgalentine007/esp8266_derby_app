@@ -163,42 +163,53 @@ namespace esp8266_derby_app
             return timer.Test();
         }
 
+        public bool ReadyRace()
+        {
+            return timer.ReadyRace();
+        }
+
         public bool FinishRace()
         {
             TimerResult timerResult = new TimerResult();
 
             if (timer.Results(out timerResult))
-            {                
-                Race newRace = new Race();
-                newRace.dateTime = DateTime.Now;
+            {
+                if (timerResult.RaceStarted == false && timerResult.RaceReady == false)
+                {
 
-                // if no 'redo race number' has been assigned, then append to the race, otherwise assign
-                if (redoRaceNumber == 0)
-                    newRace.number = races.Count + 1;
+                    Race newRace = new Race();
+                    newRace.dateTime = DateTime.Now;
+
+                    // if no 'redo race number' has been assigned, then append to the race, otherwise assign
+                    if (redoRaceNumber == 0)
+                        newRace.number = races.Count + 1;
+                    else
+                    {
+                        newRace.number = redoRaceNumber;
+                        redoRaceNumber = 0;
+                    }
+
+                    for (int i = 0; i < timerResult.LaneTimes.Count; i++)
+                    {
+                        FinishTime newFinishTime = new FinishTime();
+                        newFinishTime.lane = i + 1; // compensate zero based list
+                        newFinishTime.carID = participants[i].ID;
+                        newFinishTime.time = timerResult.LaneTimes[i];
+                        newFinishTime.raceID = newRace.ID;
+
+                        finishTimes.Add(newFinishTime);
+                        newRace.finishIDs.Add(newFinishTime.ID);
+
+                        // ugly but effective way of updating car finish IDs
+                        (cars.Where(g => g.ID == participants[i].ID).First()).finishIDs.Add(newFinishTime.ID);
+                    }
+                    races.Add(newRace);
+                    participants.Clear();
+
+                    return true;
+                }
                 else
-                {
-                    newRace.number = redoRaceNumber;
-                    redoRaceNumber = 0;
-                }
-
-                for (int i = 0; i < timerResult.LaneTimes.Count; i++)
-                {
-                    FinishTime newFinishTime = new FinishTime();
-                    newFinishTime.lane = i + 1; // compensate zero based list
-                    newFinishTime.carID = participants[i].ID;
-                    newFinishTime.time = timerResult.LaneTimes[i];
-                    newFinishTime.raceID = newRace.ID;
-
-                    finishTimes.Add(newFinishTime);
-                    newRace.finishIDs.Add(newFinishTime.ID);
-
-                    // ugly but effective way of updating car finish IDs
-                    (cars.Where(g => g.ID == participants[i].ID).First()).finishIDs.Add(newFinishTime.ID);
-                }
-                races.Add(newRace);
-                participants.Clear();
-
-                return true;            
+                    return false;
             }
             else
             {                
@@ -240,7 +251,6 @@ namespace esp8266_derby_app
             {
                 randomlist.Add(i);
             }
-
 
             randomlist = randomlist.OrderBy(g => rnd.Next()).ToList();
             foreach (int entry in randomlist)

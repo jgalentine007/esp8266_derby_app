@@ -107,7 +107,6 @@ namespace esp8266_derby_app
             numHeatsPerCar.Value = Convert.ToDecimal(derby.heatsPerCar);
             numTrackLanes.Text = " ";
             numTrackLanes.Value = Convert.ToDecimal(derby.trackLanes);            
-            chkUseTimer.Checked = derby.useTimer;
 
             txtTimerIPAddr.Text = derby.timerIP;
             btnNewRace.Enabled = false;
@@ -229,12 +228,6 @@ namespace esp8266_derby_app
             derby.timerIP = txtTimerIPAddr.Text;
         }
 
-        private void chkUseTimer_CheckedChanged(object sender, EventArgs e)
-        {
-            derby.useTimer = chkUseTimer.Checked;
-            CreateTimer();
-        }
-
         private void btnNewDen_Click(object sender, EventArgs e)
         {            
             txtDenNickname.Text = "";
@@ -316,6 +309,7 @@ namespace esp8266_derby_app
             cmbCarDen.Enabled = false;
             numCarWeight.Enabled = false;
             numCarNumber.Enabled = false;
+            numCarNumber.Value++;
             btnEditCar.Enabled = true;
             btnDeleteCar.Enabled = true;
             btnSaveCar.Enabled = false;
@@ -325,17 +319,14 @@ namespace esp8266_derby_app
         private void btnNewRace_Click(object sender, EventArgs e)
         {
             btnNewRace.Enabled = false;
-
             derby.NewRace();
 
             lblRemainingRaces.Text = "Remaining Races: " + derby.laneSchedule[0].Count();
             bsParticipants.ResetBindings(false);
-
-            if (derby.useTimer == true)            
-                btnStartTimer.Enabled = true;                
-            else
-                btnFinishRace.Enabled = true;
-
+                     
+            btnStartTimer.Enabled = true;                
+            btnGetResults.Enabled = false;
+            btnReadyRace.Enabled = true;
             lblRaceStatus.Text = "Race Status:Ready";
 
         }
@@ -345,7 +336,7 @@ namespace esp8266_derby_app
             if (derby.StartTimer())
             {
                 btnStartTimer.Enabled = false;
-                btnFinishRace.Enabled = true;
+                btnGetResults.Enabled = true;
                 lblRaceStatus.Text = "Race Status: Running";
             }
             else
@@ -354,7 +345,7 @@ namespace esp8266_derby_app
 
                 // below lines are just for testing without timer
                 btnStartTimer.Enabled = false;
-                btnFinishRace.Enabled = true;
+                btnGetResults.Enabled = true;
             }
         }
 
@@ -362,10 +353,10 @@ namespace esp8266_derby_app
         {                        
             if (derby.FinishRace())
             {
-                btnFinishRace.Enabled = false;
+                btnGetResults.Enabled = false;
                 btnRedoRace.Enabled = true;
                 btnDeleteRace.Enabled = true;
-
+                
                 // if there are any races left enable the next race button
                 if (derby.laneSchedule[0].Count > 0)
                     btnNewRace.Enabled = true;
@@ -379,10 +370,8 @@ namespace esp8266_derby_app
             {
                 lblRaceStatus.Text = "Race Status: Timer Results Error";
                 
-                btnFinishRace.Enabled = false;                
-                btnRedoRace.Enabled = true;
-                if (derby.laneSchedule[0].Count > 0)
-                    btnNewRace.Enabled = true;
+                btnGetResults.Enabled = true;                
+                btnRedoRace.Enabled = false;
             }
         }
 
@@ -474,7 +463,8 @@ namespace esp8266_derby_app
             bsCompletedRaces.ResetBindings(false);
             bsParticipants.ResetBindings(false);
             btnStartTimer.Enabled = true;
-            btnFinishRace.Enabled = false;
+            btnGetResults.Enabled = false;
+            btnReadyRace.Enabled = true;
             btnRedoRace.Enabled = false;
         }
 
@@ -537,17 +527,8 @@ namespace esp8266_derby_app
 
         private void CreateTimer()
         {
-            if (chkUseTimer.Checked)
-            {
-                Esp8266Timer timer = new Esp8266Timer(derby.timerIP);
-                derby.SetTimer(timer);
-            }
-            else
-            {
-                MockTimer timer = new MockTimer(derby.trackLanes);
-                derby.SetTimer(timer);
-            }
-            
+            Esp8266Timer timer = new Esp8266Timer(derby.timerIP);
+            derby.SetTimer(timer);
         }
 
         private void RefreshSummary()
@@ -608,6 +589,15 @@ namespace esp8266_derby_app
             }
             
             txtRaceSummary.Text = summary;
+        }
+
+        private void btnReadyRace_Click(object sender, EventArgs e)
+        {
+            if(derby.ReadyRace())
+            {
+                btnReadyRace.Enabled = false;
+                btnGetResults.Enabled = true;
+            }
         }
     }
 }
